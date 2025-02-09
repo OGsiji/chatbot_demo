@@ -110,6 +110,8 @@ def create_interface() -> gr.ChatInterface:
     
     return chat_interface
 
+
+
 if __name__ == "__main__":
     interface = create_interface()
     interface.launch(share=True)
