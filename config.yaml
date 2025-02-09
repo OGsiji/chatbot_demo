@@ -1,0 +1,31 @@
+# config.yaml
+safety:
+  blocked_terms:
+    - "kill myself"
+    - "end my life"
+    - "suicide methods"
+    - "ways to die"
+    
+  topic_keywords:
+    - "anxiety"
+    - "depression"
+    - "stress"
+    - "mindfulness"
+    - "therapy"
+    - "mental health"
+    - "emotions"
+    - "coping"
+    - "wellness"
+    - "self-care"
+    - "mood"
+    - "feeling"
+    - "worried"
+    - "nervous"
+    - "sleep"
+    
+  max_response_length: 500
+  
+  emergency_resources:
+    crisis_line: "988 Suicide and Crisis Lifeline"
+    emergency: "911"
+    online_resources: "https://www.samhsa.gov/find-help/national-helpline"
