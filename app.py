@@ -1,4 +1,3 @@
-# app.py
 import os
 import logging
 from typing import Optional, Dict, List
@@ -10,17 +9,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('chatbot.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("chatbot.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
+SYSTEM_PROMPT = """
+You are Narabot, a kind and empathetic mental health assistant from NaraTherapy.
+Your primary role is to provide emotional support, self-care tips, and a safe space for users to express themselves.
+- Always use a warm and encouraging tone.
+- Validate the user's feelings and offer compassionate guidance.
+- Provide self-care advice, mindfulness exercises, and stress management techniques.
+- Avoid giving medical advice or diagnosing conditions. Instead, suggest seeking professional help when necessary.
+- But be very expressive, give them good detailed responses let them be encouraged to talk to you and be impressed too
+- If a user expresses distress or crisis-level emotions, encourage them to reach out to a professional helpline.
+- Keep responses friendly, concise, and supportive, ensuring users feel heard and valued. 
+- If off-topic, you should answer them but also gently redirect them like saying By the way, I'm best at discussing mental well-being! Would you like to explore self-care or stress management tips? 😊.
+"""
 
 @dataclass
 class SafetyConfig:
@@ -32,82 +40,89 @@ class SafetyConfig:
 
 class ContentModerator:
     """Handles content moderation and safety checks"""
-    
+
     def __init__(self, config: SafetyConfig):
         self.config = config
-    
+
     def check_content(self, text: str) -> tuple[bool, Optional[str]]:
-        # Check for blocked terms
+        """Checks for restricted terms and provides support for emergencies."""
         for term in self.config.blocked_terms:
             if term.lower() in text.lower():
-                return False, f"I noticed some concerning content. Here are some resources that might help: {self.config.emergency_resources['crisis_line']}"
-        
-        # Check for emergency keywords
-        emergency_terms = ['suicide', 'kill', 'die', 'hurt', 'harm', 'emergency', 'crisis']
+                return False, f"I noticed some concerning words. If you're struggling, please reach out to {self.config.emergency_resources['crisis_line']} for immediate support. You're not alone. ❤️"
+
+        emergency_terms = ["suicide", "kill", "die", "hurt", "harm", "emergency", "crisis"]
         if any(term in text.lower() for term in emergency_terms):
-            return False, "If you're having thoughts of self-harm or experiencing a crisis, please contact emergency services or call the crisis helpline immediately."
-        
+            return False, "I'm here for you. If you're feeling overwhelmed, please contact a crisis helpline or talk to someone you trust. You matter. 💙"
+
         return True, None
 
-    def validate_scope(self, text: str) -> bool:
-        """Ensure conversation stays within mental health topics"""
-        return any(keyword.lower() in text.lower() for keyword in self.config.topic_keywords)
+    def needs_redirect(self, text: str) -> bool:
+        """Detects if a message is off-topic and should be gently redirected."""
+        return not any(keyword.lower() in text.lower() for keyword in self.config.topic_keywords)
+
 
 class MentalHealthChatbot:
     def __init__(self):
         self.load_config()
         self.moderator = ContentModerator(self.safety_config)
-        
+
         # Initialize Gemini
         genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel("gemini-pro")
         self.chat = self.model.start_chat(history=[])
-        
+
         # Initialize conversation memory
         self.conversation_history = []
-    
+
     def load_config(self):
         """Load configuration from YAML"""
-        with open('config.yaml', 'r') as file:
+        with open("config.yaml", "r") as file:
             config = yaml.safe_load(file)
-            self.safety_config = SafetyConfig(**config['safety'])
-    
+            self.safety_config = SafetyConfig(**config["safety"])
+
+
     async def get_response(self, message: str, history: List[List[str]]) -> str:
-        """Process message and return response"""
+        """Processes user input and generates a response."""
         try:
             # Safety checks
             is_safe, warning = self.moderator.check_content(message)
             if not is_safe:
                 return warning
-            
-            if not self.moderator.validate_scope(message):
-                return "I'm here to help with mental health topics. Could you please rephrase your question in that context?"
-            
-            # Generate response
-            response = self.chat.send_message(message)
+
+            # Prepend system instructions to the message
+            formatted_message = f"{SYSTEM_PROMPT}\n\nUser: {message}"
+
+            # Generate AI response
+            response = self.chat.send_message(formatted_message)
+
             return response.text
-            
+
         except Exception as e:
             logger.error(f"Error processing message: {str(e)}")
-            return "I apologize, but I'm having trouble processing your request. Please try again."
+            return "Oops! I'm having trouble processing your request. Could you try rephrasing? 💡"
+        
+        except Exception as e:
+            logger.error(f"Error processing message: {str(e)}")
+            return "Oops! I'm having trouble processing your request. Could you try rephrasing? 💡"
 
 def create_interface() -> gr.ChatInterface:
-    """Create Gradio interface"""
+    """Creates the Gradio chat interface."""
     chatbot = MentalHealthChatbot()
-    
+
     chat_interface = gr.ChatInterface(
         fn=chatbot.get_response,
-        title="Mental Health Support Chat",
-        description="I'm here to help you with mental health topics, stress management, and coping strategies.",
+        title="Chat with Narabot 🧘‍♂️",
+        description="I'm Narabot, here to support your mental well-being with friendly conversation and self-care tips. 💙",
         examples=[
             "I'm feeling anxious about my upcoming presentation",
             "Can you suggest some mindfulness exercises?",
             "How can I manage stress better?",
-            "I'm having trouble sleeping lately"
+            "I'm having trouble sleeping lately",
+            "Tell me something interesting!",
         ],
         theme=gr.themes.Soft(),
     )
-    
+
     return chat_interface
 
 if __name__ == "__main__":

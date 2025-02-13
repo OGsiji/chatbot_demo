@@ -5,26 +5,87 @@ safety:
     - "end my life"
     - "suicide methods"
     - "ways to die"
-    
+
   topic_keywords:
+    # Emotions & Feelings
     - "anxiety"
     - "depression"
     - "stress"
+    - "worry"
+    - "sadness"
+    - "anger"
+    - "happiness"
+    - "mood swings"
+    - "loneliness"
+    - "frustration"
+    - "grief"
+    - "self-esteem"
+    - "guilt"
+    - "shame"
+
+    # Mental Health Conditions
+    - "PTSD"
+    - "OCD"
+    - "ADHD"
+    - "bipolar disorder"
+    - "schizophrenia"
+    - "burnout"
+    - "trauma"
+    - "eating disorders"
+    - "panic attacks"
+    - "phobias"
+    - "addiction"
+    - "self-harm"
+
+    # Coping & Therapy
     - "mindfulness"
+    - "meditation"
     - "therapy"
-    - "mental health"
-    - "emotions"
-    - "coping"
-    - "wellness"
+    - "counseling"
+    - "CBT"
+    - "DBT"
+    - "journaling"
+    - "gratitude"
+    - "resilience"
+    - "coping strategies"
+    - "relaxation"
     - "self-care"
-    - "mood"
-    - "feeling"
-    - "worried"
-    - "nervous"
+    - "emotional regulation"
+
+    # Social & Relationship Well-being
+    - "friendships"
+    - "relationships"
+    - "family stress"
+    - "social anxiety"
+    - "breakups"
+    - "conflict resolution"
+    - "workplace stress"
+    - "bullying"
+    - "support groups"
+
+    # Physical & Mental Connection
     - "sleep"
-    
+    - "diet"
+    - "exercise"
+    - "breathing techniques"
+    - "fatigue"
+    - "brain fog"
+    - "chronic stress"
+    - "headaches"
+    - "relaxation techniques"
+
+    # Life Challenges & Personal Growth
+    - "motivation"
+    - "productivity"
+    - "goal-setting"
+    - "purpose"
+    - "personal development"
+    - "decision-making"
+    - "career stress"
+    - "financial stress"
+
   max_response_length: 500
-  
+
   emergency_resources:
     crisis_line: "988 Suicide and Crisis Lifeline"
     emergency: "911"
